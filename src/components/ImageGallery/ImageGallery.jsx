@@ -10,7 +10,7 @@ export const ImageGallery = ({ img }) => {
   const [showModal, setShowModal] = useState(false);
   const [showImg, setShowImg] = useState({});
 
-  const handleOpenModal = ({ imgUrl, alt }) => {
+  const handleOpenModal = (imgUrl, alt ) => {
     document.body.style.overflow = 'hidden';
     setShowModal(true);
     setShowImg({ imgUrl, alt });
