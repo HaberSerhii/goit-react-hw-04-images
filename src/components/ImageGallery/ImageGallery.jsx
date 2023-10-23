@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import ReactModal from 'react-modal';
 import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
 import { ImageGalleryStyled } from './ImageGallery.styled';
@@ -6,26 +6,22 @@ import { Modal } from '../Modal/Modal';
 import { ModalStyled } from '../Modal/Modal.styled';
 ReactModal.setAppElement('#root');
 
-export class ImageGallery extends Component {
-  state = {
-    showModal: false,
-    showImg: {},
-  };
+export const ImageGallery = ({ img }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [showImg, setShowImg] = useState({});
 
-  handleOpenModal = (imgUrl, alt) => {
+  const handleOpenModal = ({ imgUrl, alt }) => {
     document.body.style.overflow = 'hidden';
-    this.setState({ showModal: true, showImg: { imgUrl, alt } });
+    setShowModal(true);
+    setShowImg({ imgUrl, alt });
   };
 
-  handleCloseModal = () => {
+  const handleCloseModal = () => {
     document.body.style.overflow = '';
-    this.setState({ showModal: false });
+    setShowModal(false);
   };
 
-  render() {
-    const { img } = this.props;
-    const { showModal, showImg } = this.state;
-    return (
+  return (
       <>
         <ImageGalleryStyled className="galleryWrapp">
           {img &&
@@ -33,19 +29,20 @@ export class ImageGallery extends Component {
               <ImageGalleryItem
                 key={item.id}
                 itemImg={item}
-                onOpenModal={this.handleOpenModal}
+                onOpenModal={handleOpenModal}
               />
             ))}
         </ImageGalleryStyled>
         <ReactModal
           isOpen={showModal}
           contentLabel="Modal"
-          onRequestClose={this.handleCloseModal}
+          onRequestClose={handleCloseModal}
           style={ModalStyled}
         >
           <Modal imgData={showImg} />
         </ReactModal>
       </>
     );
-  }
-}
+
+
+};
