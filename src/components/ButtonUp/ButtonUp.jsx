@@ -18,10 +18,6 @@ export const ButtonUp = () => {
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
-  }, [handleScroll])
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
     }

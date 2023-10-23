@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { animateScroll as scroll } from 'react-scroll';
 import { Searchbar } from './SearchBar/SearchBar';
 import { ContainerStyled } from './App.styled';
@@ -16,108 +16,11 @@ Notify.init({
   timeout: 2000,
 });
 
-// export class App extends Component {
-//   state = this.getInitState();
-
-//   componentDidUpdate(_, prevState) {
-//     const { page, currentPage, error } = this.state;
-
-//     if (page === currentPage || error) {
-//       return;
-//     }
-
-//     getImage(this.state.searchValue, this.state.page)
-//       .then(data => {
-//         if (data.totalHits < 1) {
-//           throw new Error(
-//             'Вибачайте, але нажаль ми не знайшли нічого за цим запитом. Спробуйте ще.'
-//           );
-//         }
-
-//         this.setState(prevState => ({
-//           img: [...prevState.img, ...data.hits],
-//           totalPage: Math.ceil(data.totalHits / 12),
-//           currentPage: prevState.currentPage + 1,
-//         }));
-
-//         Notify.success(`Круто! Ми знайшли ${data.totalHits} картинок.`);
-//         this.smoothScroll(this.getNextPageHeight());
-//       })
-//       .catch(error => this.setState({ error: error.message }))
-//       .finally(() => this.setState({ isLoading: false }));
-//   };
-
-//   getInitState() {
-//     return {
-//       img: [],
-//       searchValue: '',
-//       page: 1,
-//       currentPage: 0,
-//       totalPage: 0,
-//       isLoading: false,
-//       error: null,
-//     };
-//   }
-
-//   smoothScroll = cardHeight => {
-//     if (!cardHeight) {
-//       return;
-//     }
-
-//     scroll.scrollMore(cardHeight * 2);
-//   };
-
-//   onSubmit = value => {
-//     this.setState({
-//       ...this.getInitState(),
-//       searchValue: value,
-//     });
-//   };
-
-//   getNextPageHeight = () => {
-//     const galleryRef =
-//       document.querySelector('.galleryWrapp').firstElementChild;
-
-//     if (!galleryRef) {
-//       return null;
-//     }
-
-//     const { height: cardHeight } = galleryRef.getBoundingClientRect();
-
-//     return cardHeight;
-//   };
-
-//   onChangePage = () => {
-//     this.setState(prevState => ({
-//       page: prevState.page + 1,
-//       isLoading: true,
-//     }));
-//   };
-
-//   render() {
-//     const { img, isLoading, error, totalPage, page } = this.state;
-
-//     return (
-//       <ContainerStyled>
-//         <Searchbar onSubmit={this.onSubmit} currentPage={{ page, totalPage }} />
-//         {error && <ErrorMessageStyled>{error}</ErrorMessageStyled>}
-//         <ImageGallery img={img} />
-//         {isLoading && <Loader />}
-//         {totalPage > 1 && page < totalPage && (
-//           <Button onClick={this.onChangePage} />
-//         )}
-//         <ButtonUp />
-//       </ContainerStyled>
-//     );
-//   }
-// }
-
-
 export const App = () => {
-  const [img, setImg] = useState([]);
+  const [images, setImg] = useState([]);
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(1);
-  const [currentPage, setCurrentpage] = useState(0);
+  // const [currentPage, setCurrentpage] = useState(0);
   const [totalPage, setTotalPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -147,9 +50,30 @@ export const App = () => {
     setPage(prevState => prevState + 1);
     setIsLoading(true);
   };
-
   useEffect(() => {
-    if (page === currentPage || error) {
+    if (!searchValue) {
+      return;
+    }
+    getImage(searchValue, 1)
+      .then((data) => {
+        if (data.totalHits < 1) {
+          setImg([]);
+        throw new Error(
+          'Вибачайте, але нажаль ми не знайшли нічого за цим запитом. Спробуйте ще.'
+        );
+      }
+        setImg(data.hits);
+        Notify.success(`Круто! Ми знайшли ${data.totalHits} картинок.`);
+        setError(null);
+        setPage(1)
+        setTotalPage(Math.ceil(data.totalHits / 12));
+    })
+      .catch(error => setError(error.message))
+      .finally(() => setIsLoading(false));
+  }, [searchValue])
+  
+  useEffect(() => {
+    if (page === 1 ) {
       return;
     }
 
@@ -162,24 +86,21 @@ export const App = () => {
         }
         setImg(prevState => [...prevState, ...data.hits]);
         setTotalPage(Math.ceil(data.totalHits / 12));
-        setCurrentpage(prevState => prevState + 1);
 
         Notify.success(`Круто! Ми знайшли ${data.totalHits} картинок.`);
         smoothScroll(getNextPageHeight());
       })
       .catch(error => setError(error.message))
       .finally(() => setIsLoading(false));
-  }, [page, currentPage, error, searchValue]);
+  }, [page]);
 
   return (
       <ContainerStyled>
         <Searchbar onSubmit={onSubmit} currentPage={{ page, totalPage }} />
         {error && <ErrorMessageStyled>{error}</ErrorMessageStyled>}
-        <ImageGallery img={img} />
+        <ImageGallery img={images} />
         {isLoading && <Loader />}
-        {totalPage > 1 && page < totalPage && (
-          <Button onClick={onChangePage} />
-        )}
+      { }<Button onClick={onChangePage} />
         <ButtonUp />
       </ContainerStyled>
     );

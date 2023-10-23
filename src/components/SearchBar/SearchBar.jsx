@@ -1,4 +1,3 @@
-import { Component } from 'react';
 import { animateScroll as scroll } from 'react-scroll';
 import { ErrorMessage, Formik } from 'formik';
 import { object, string } from 'yup';
@@ -18,43 +17,38 @@ const schema = object().shape({
 const initialValues = {
   search: '',
 };
-export class Searchbar extends Component {
-  handleSubmit = (value, { resetForm }) => {
-    this.props.onSubmit(value.search);
+export const Searchbar = ({ onSubmit, currentPage: { page, totalPage } }) => {
+  const handleSubmit = (value, { resetForm }) => {
+    onSubmit(value.search);
     resetForm();
   };
-  render() {
-    const {
-      currentPage: { page, totalPage },
-    } = this.props;
-    return (
-      <Header>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={schema}
-          onSubmit={this.handleSubmit}
-        >
-          <SearchForm>
-            <SearchFormButton type="submit">
-              <AiOutlineSearch />
-            </SearchFormButton>
+  return (
+    <Header>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={schema}
+        onSubmit={handleSubmit}
+      >
+        <SearchForm>
+          <SearchFormButton type="submit">
+            <AiOutlineSearch />
+          </SearchFormButton>
 
-            <SearchFormInput
-              name="search"
-              type="text"
-              autoComplete="off"
-              autoFocus
-              placeholder="Search images and photos"
-            />
-            <ErrorMessage component={ErrorMessageStyled} name="number" />
-          </SearchForm>
-        </Formik>
-        {totalPage > 1 && (
-          <CurrentPageStyled onClick={() => scroll.scrollToBottom()}>
-            {page}/{totalPage}
-          </CurrentPageStyled>
-        )}
-      </Header>
-    );
-  }
-}
+          <SearchFormInput
+            name="search"
+            type="text"
+            autoComplete="off"
+            autoFocus
+            placeholder="Search images and photos"
+          />
+          <ErrorMessage component={ErrorMessageStyled} name="number" />
+        </SearchForm>
+      </Formik>
+      {totalPage > 1 && (
+        <CurrentPageStyled onClick={() => scroll.scrollToBottom()}>
+          {page}/{totalPage}
+        </CurrentPageStyled>
+      )}
+    </Header>
+  );
+};

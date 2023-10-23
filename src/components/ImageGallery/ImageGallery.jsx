@@ -8,9 +8,9 @@ ReactModal.setAppElement('#root');
 
 export const ImageGallery = ({ img }) => {
   const [showModal, setShowModal] = useState(false);
-  const [showImg, setShowImg] = useState({});
+  const [showImg, setShowImg] = useState(null);
 
-  const handleOpenModal = (imgUrl, alt ) => {
+  const handleOpenModal = (imgUrl, alt) => {
     document.body.style.overflow = 'hidden';
     setShowModal(true);
     setShowImg({ imgUrl, alt });
@@ -39,7 +39,7 @@ export const ImageGallery = ({ img }) => {
           onRequestClose={handleCloseModal}
           style={ModalStyled}
         >
-          <Modal imgData={showImg} />
+        {showImg ? <Modal imgData={showImg} /> : null}
         </ReactModal>
       </>
     );
