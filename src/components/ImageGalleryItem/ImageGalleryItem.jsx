@@ -10,4 +10,4 @@ export const ImageGalleryItem = ({
       <img src={webformatURL} alt={tags} width={300} />
     </ImageGalleryItemStyled>
   );
-}
+};

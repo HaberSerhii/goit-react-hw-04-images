@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { animateScroll as scroll } from 'react-scroll';
 import { Searchbar } from './SearchBar/SearchBar';
 import { ContainerStyled } from './App.styled';
@@ -16,98 +16,171 @@ Notify.init({
   timeout: 2000,
 });
 
-export class App extends Component {
-  state = this.getInitState();
+// export class App extends Component {
+//   state = this.getInitState();
 
-  componentDidUpdate(_, prevState) {
-    const { page, currentPage, error } = this.state;
+//   componentDidUpdate(_, prevState) {
+//     const { page, currentPage, error } = this.state;
 
+//     if (page === currentPage || error) {
+//       return;
+//     }
+
+//     getImage(this.state.searchValue, this.state.page)
+//       .then(data => {
+//         if (data.totalHits < 1) {
+//           throw new Error(
+//             'Вибачайте, але нажаль ми не знайшли нічого за цим запитом. Спробуйте ще.'
+//           );
+//         }
+
+//         this.setState(prevState => ({
+//           img: [...prevState.img, ...data.hits],
+//           totalPage: Math.ceil(data.totalHits / 12),
+//           currentPage: prevState.currentPage + 1,
+//         }));
+
+//         Notify.success(`Круто! Ми знайшли ${data.totalHits} картинок.`);
+//         this.smoothScroll(this.getNextPageHeight());
+//       })
+//       .catch(error => this.setState({ error: error.message }))
+//       .finally(() => this.setState({ isLoading: false }));
+//   };
+
+//   getInitState() {
+//     return {
+//       img: [],
+//       searchValue: '',
+//       page: 1,
+//       currentPage: 0,
+//       totalPage: 0,
+//       isLoading: false,
+//       error: null,
+//     };
+//   }
+
+//   smoothScroll = cardHeight => {
+//     if (!cardHeight) {
+//       return;
+//     }
+
+//     scroll.scrollMore(cardHeight * 2);
+//   };
+
+//   onSubmit = value => {
+//     this.setState({
+//       ...this.getInitState(),
+//       searchValue: value,
+//     });
+//   };
+
+//   getNextPageHeight = () => {
+//     const galleryRef =
+//       document.querySelector('.galleryWrapp').firstElementChild;
+
+//     if (!galleryRef) {
+//       return null;
+//     }
+
+//     const { height: cardHeight } = galleryRef.getBoundingClientRect();
+
+//     return cardHeight;
+//   };
+
+//   onChangePage = () => {
+//     this.setState(prevState => ({
+//       page: prevState.page + 1,
+//       isLoading: true,
+//     }));
+//   };
+
+//   render() {
+//     const { img, isLoading, error, totalPage, page } = this.state;
+
+//     return (
+//       <ContainerStyled>
+//         <Searchbar onSubmit={this.onSubmit} currentPage={{ page, totalPage }} />
+//         {error && <ErrorMessageStyled>{error}</ErrorMessageStyled>}
+//         <ImageGallery img={img} />
+//         {isLoading && <Loader />}
+//         {totalPage > 1 && page < totalPage && (
+//           <Button onClick={this.onChangePage} />
+//         )}
+//         <ButtonUp />
+//       </ContainerStyled>
+//     );
+//   }
+// }
+
+
+export const App = () => {
+  const [img, setImg] = useState([]);
+  const [searchValue, setSearchValue] = useState('');
+  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentpage] = useState(0);
+  const [totalPage, setTotalPage] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const smoothScroll = (cardHeight) => {
+    if (!cardHeight) {
+      return;
+    }
+    scroll.scrollMore(cardHeight * 2);
+  };
+
+  const onSubmit = (value) => {
+    setSearchValue(value);
+  };
+
+  const getNextPageHeight = () => {
+    const galleryRef =
+      document.querySelector('.galleryWrapp').firstElementChild;
+    if (!galleryRef) {
+      return null;
+    }
+    const { height: cardHeight } = galleryRef.getBoundingClientRect();
+    return cardHeight;
+  };
+
+  const onChangePage = () => {
+    setPage(prevState => prevState + 1);
+    setIsLoading(true);
+  };
+
+  useEffect(() => {
     if (page === currentPage || error) {
       return;
     }
 
-    getImage(this.state.searchValue, this.state.page)
+    getImage(searchValue, page)
       .then(data => {
         if (data.totalHits < 1) {
           throw new Error(
             'Вибачайте, але нажаль ми не знайшли нічого за цим запитом. Спробуйте ще.'
           );
         }
-
-        this.setState(prevState => ({
-          img: [...prevState.img, ...data.hits],
-          totalPage: Math.ceil(data.totalHits / 12),
-          currentPage: prevState.currentPage + 1,
-        }));
+        setImg(prevState => [...prevState, ...data.hits]);
+        setTotalPage(Math.ceil(data.totalHits / 12));
+        setCurrentpage(prevState => prevState + 1);
 
         Notify.success(`Круто! Ми знайшли ${data.totalHits} картинок.`);
-        this.smoothScroll(this.getNextPageHeight());
+        smoothScroll(getNextPageHeight());
       })
-      .catch(error => this.setState({ error: error.message }))
-      .finally(() => this.setState({ isLoading: false }));
-  }
+      .catch(error => setError(error.message))
+      .finally(() => setIsLoading(false));
+  }, [page, currentPage, error, searchValue]);
 
-  getInitState() {
-    return {
-      img: [],
-      searchValue: '',
-      page: 1,
-      currentPage: 0,
-      totalPage: 0,
-      isLoading: false,
-      error: null,
-    };
-  }
-
-  smoothScroll = cardHeight => {
-    if (!cardHeight) {
-      return;
-    }
-
-    scroll.scrollMore(cardHeight * 2);
-  };
-
-  onSubmit = value => {
-    this.setState({
-      ...this.getInitState(),
-      searchValue: value,
-    });
-  };
-
-  getNextPageHeight = () => {
-    const galleryRef =
-      document.querySelector('.galleryWrapp').firstElementChild;
-
-    if (!galleryRef) {
-      return null;
-    }
-
-    const { height: cardHeight } = galleryRef.getBoundingClientRect();
-
-    return cardHeight;
-  };
-
-  onChangePage = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-      isLoading: true,
-    }));
-  };
-
-  render() {
-    const { img, isLoading, error, totalPage, page } = this.state;
-
-    return (
+  return (
       <ContainerStyled>
-        <Searchbar onSubmit={this.onSubmit} currentPage={{ page, totalPage }} />
+        <Searchbar onSubmit={onSubmit} currentPage={{ page, totalPage }} />
         {error && <ErrorMessageStyled>{error}</ErrorMessageStyled>}
         <ImageGallery img={img} />
         {isLoading && <Loader />}
         {totalPage > 1 && page < totalPage && (
-          <Button onClick={this.onChangePage} />
+          <Button onClick={onChangePage} />
         )}
         <ButtonUp />
       </ContainerStyled>
     );
-  }
-}
+};
