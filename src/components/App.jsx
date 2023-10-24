@@ -99,7 +99,7 @@ export const App = () => {
         {error && <ErrorMessageStyled>{error}</ErrorMessageStyled>}
         <ImageGallery img={images} />
         {isLoading && <Loader />}
-      { }<Button onClick={onChangePage} />
+        {searchValue && <Button onClick={onChangePage} />}
         <ButtonUp />
       </ContainerStyled>
     );
