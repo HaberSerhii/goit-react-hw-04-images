@@ -20,7 +20,6 @@ export const App = () => {
   const [images, setImg] = useState([]);
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(1);
-  // const [currentPage, setCurrentpage] = useState(0);
   const [totalPage, setTotalPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -92,7 +91,7 @@ export const App = () => {
       })
       .catch(error => setError(error.message))
       .finally(() => setIsLoading(false));
-  }, [page]);
+  }, [page, searchValue]);
 
   return (
       <ContainerStyled>
